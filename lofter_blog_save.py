@@ -53,19 +53,23 @@ def _get_timestamp(html, time_pattern):
         timestamp = time_pattern.search(html).group(1)
     return str(timestamp)
 
-
+# todo cannot save comments now
 def _save_html(path, username, blog, headers):
     blog_url = 'http://%s.lofter.com/post/%s' % (username, blog)
     blog_html = requests.get(blog_url, headers=headers).text
     soup = BeautifulSoup(blog_html, 'lxml')
-    new_path = path + soup.title.string + '.txt'
-    print(soup.select('.text')[1])
-    with open(new_path, 'w', encoding='utf-8') as f_out:
-        f_out.write(soup.select('.text')[1].prettify())
-    # Html_file = open(path + username + soup.title.string + '.html', "w")
-    # Html_file.write(blog_html)
-    # Html_file.close()
+    Html_file = open(path + '/' + soup.title.string + '.html', "w")
+    Html_file.write(blog_html)
+    Html_file.close()
 
+def _save_txt(path, username, blog, headers): 
+    blog_url = 'http://%s.lofter.com/post/%s' % (username, blog)
+    blog_html = requests.get(blog_url, headers=headers).text
+    soup = BeautifulSoup(blog_html, 'lxml')
+    # new_path = path + soup.title.string + '.txt'
+    # print(soup.select('.text')[1])
+    # with open(new_path, 'w', encoding='utf-8') as f_out:
+    #     f_out.write(soup.select('.text')[1].prettify())
 
 def _create_query_data(blogid, timestamp, query_number):
     data = {'callCount': '1',
@@ -85,15 +89,16 @@ def _create_query_data(blogid, timestamp, query_number):
 
 def main():
     # prepare paramters
-    username = 'ireneeoh' # input username
+    username = ''  # input username
     blogid = _get_blogid(username)
-    query_number = 1
+    query_number = 5 # input batch num
     time_pattern = re.compile(r's%d\.time=(.*);s.*type' % (query_number-1))
     blog_url_pattern = re.compile(r's[\d]*\.permalink="([\w_]*)"')
     print(os.path.expanduser('~'))
 
     # create path to save 
     path = _get_path(username)
+    print(path)
 
     # parameters of post packet
     url = 'http://%s.lofter.com/dwr/call/plaincall/ArchiveBean.getArchivePostByTime.dwr' % username
