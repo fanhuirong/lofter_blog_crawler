@@ -16,7 +16,7 @@ import random
 
 def _get_path(uid):
     home_path = os.path.expanduser('~')
-    path = os.path.join(home_path, 'lofter', uid)
+    path = os.path.join(home_path, 'lofter', 'txt', uid)
     if not os.path.isdir(path):
         os.makedirs(path)
     return path
@@ -62,14 +62,15 @@ def _save_html(path, username, blog, headers):
     Html_file.write(blog_html)
     Html_file.close()
 
+# todo not suitable for all template
 def _save_txt(path, username, blog, headers): 
     blog_url = 'http://%s.lofter.com/post/%s' % (username, blog)
     blog_html = requests.get(blog_url, headers=headers).text
     soup = BeautifulSoup(blog_html, 'lxml')
-    # new_path = path + soup.title.string + '.txt'
-    # print(soup.select('.text')[1])
-    # with open(new_path, 'w', encoding='utf-8') as f_out:
-    #     f_out.write(soup.select('.text')[1].prettify())
+    new_path = path +  '/' + soup.title.string + '.txt'
+    content = soup.select('.text')[1] # to modify
+    with open(new_path, 'w', encoding='utf-8') as f_out:
+        f_out.write(content.get_text())
 
 def _create_query_data(blogid, timestamp, query_number):
     data = {'callCount': '1',
@@ -126,7 +127,8 @@ def main():
             # get imgurls from new_blogs
 
             for blog in new_blogs:
-                _save_html(path, username, blog, headers)
+                # _save_html(path, username, blog, headers)
+                _save_txt(path, username, blog, headers)
 
         if num_new_blogs != query_number:
             print(
